@@ -18,6 +18,8 @@ public class FPCameraController {
     private float pitch = 0.0f;
     private Vector3Float me;
     
+    private Chunk chunk;
+    
     // method: FPCameraController
     // purpose: set up position locations
     public FPCameraController(float x, float y, float z) {
@@ -26,6 +28,8 @@ public class FPCameraController {
         lPosition.x = 0f;
         lPosition.y = 15f;
         lPosition.z = 0f;
+        
+        chunk = new Chunk(0, 0, 0);
     }
 
     // method: yaw
@@ -139,7 +143,8 @@ public class FPCameraController {
             glLoadIdentity();
             camera.lookThrough();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            render();
+            chunk.render();
+            //render();
             Display.update();
             Display.sync(60);
         }

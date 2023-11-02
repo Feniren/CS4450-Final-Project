@@ -178,12 +178,12 @@ public class Chunk{
     }
     
     public Chunk(int startX, int startY, int startZ) {
-        try{texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
-    }
-    catch(Exception e)
-    {
-        System.out.print("ER-ROAR!");
-    }
+        try{
+            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
+        }
+        catch(Exception e){
+            System.out.print("ER-ROAR!");
+        }
 
         r= new Random();
         Blocks = new
