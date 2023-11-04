@@ -123,16 +123,8 @@ public class Chunk{
         x + offset, y - offset, z };
     }
     
-    private float[] getCubeColor(Block block) {
-        switch (block.GetBlockID()) {
-        case 1:
-        return new float[] { 0, 1, 0 };
-        case 2:
-        return new float[] { 1, 0.5f, 0 };
-        case 3:
-        return new float[] { 0, 0f, 1f };
-    }
-    return new float[] { 1, 1, 1 };
+    private float[] getCubeColor(Block block){
+        return new float[] { 1, 1, 1 };
     }
     
     public static float[] createTexCube(float x, float y, Block block) {
