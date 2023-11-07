@@ -34,6 +34,10 @@ public class Block{
         return isActive;
     }
     
+    public BlockType GetBlockType(){
+        return type;
+    }
+    
     public void SetIsAvtive(boolean active){
         isActive = active;
     }
