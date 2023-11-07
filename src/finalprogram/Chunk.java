@@ -30,15 +30,14 @@ public class Chunk{
     
     public Chunk(int startX, int startY, int startZ){
         try{
-            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png"));
+            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("Terrain.png"));
         }
         catch(Exception e){
             System.out.print("ER-ROAR!");
         }
 
         r= new Random();
-        Blocks = new
-        Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+        Blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
         
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
@@ -115,9 +114,15 @@ public class Chunk{
     }
     
     public static float[] createTexCube(float x, float y, Block block){
-        float offset = (1024f/16)/1024f;
+        float offset = (96f/16)/96f;
         switch (block.GetBlockType()) {
             case Grass:
+                /*
+                return new float[]{
+                    x, y,
+                    x + offset, y + offset
+                };*/
+                
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
                 x + offset*3, y + offset*10,
@@ -172,7 +177,7 @@ public class Chunk{
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){
-                height = (startY + (int)(10 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH);
+                height = (startY + (int)(30 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH);
                 
                 for(float y = 0; y < CHUNK_SIZE; y++){
                     

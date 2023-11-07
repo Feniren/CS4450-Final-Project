@@ -20,12 +20,12 @@ public class BlockTexture{
     
     private BlockTexture(){
         try{
-            textures.put(BlockType.Bedrock, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
-            textures.put(BlockType.Dirt, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
-            textures.put(BlockType.Grass, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
-            textures.put(BlockType.Sand, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
-            textures.put(BlockType.Stone, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
-            textures.put(BlockType.Water, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("terrain.png")));
+            textures.put(BlockType.Bedrock, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
+            textures.put(BlockType.Dirt, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
+            textures.put(BlockType.Grass, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
+            textures.put(BlockType.Sand, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
+            textures.put(BlockType.Stone, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
+            textures.put(BlockType.Water, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
         }
         catch(Exception e){
             System.out.print("Texture Load Failed");
