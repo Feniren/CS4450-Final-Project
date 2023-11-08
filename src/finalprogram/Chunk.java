@@ -172,12 +172,16 @@ public class Chunk{
         FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
-        SimplexNoise noise = new SimplexNoise(2, 0.25, 10);
+        //SimplexNoise noise = new SimplexNoise(20, .25, r.nextInt());
+        SimplexNoise noise2 = new SimplexNoise(20, .25, r.nextInt());
+        
         float height;
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){
-                height = (startY + (int)(30 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH);
+                //height = (startY + (int)(10 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH) /4 + 1;
+                height = startY;
+                height += (noise2.getNoise((int)x, (int)z)+.9)*10;
                 
                 for(float y = 0; y < CHUNK_SIZE; y++){
                     
