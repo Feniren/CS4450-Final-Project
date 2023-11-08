@@ -1,3 +1,14 @@
+/***************************************************************
+* file: Chunk.java
+* author: Aidan, Jace
+* class: CS 4450 Computer Graphics
+*
+* assignment: final program
+* date last modified: 11/7/2023
+*
+* purpose: This holds chunk data
+*
+****************************************************************/
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -28,6 +39,7 @@ public class Chunk{
     private int VBOTextureHandle;
     private Texture texture;
     
+    //constructor
     public Chunk(int startX, int startY, int startZ){
         try{
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("Terrain.png"));
@@ -71,6 +83,7 @@ public class Chunk{
         rebuildMesh(startX, startY, startZ);
     }
     
+    //creates quads for cubes
     public static float[] createCube(float x, float y, float z){
         int offset = CUBE_LENGTH / 2;
         
@@ -107,6 +120,7 @@ public class Chunk{
         x + offset, y - offset, z };
     }
     
+    //returns a float array that holds vertex color data
     private float[] createCubeVertexCol(float[] CubeColorArray){
         float[] cubeColors = new float[CubeColorArray.length * 4 * 6];
         
@@ -117,6 +131,7 @@ public class Chunk{
         return cubeColors;
     }
     
+    //creates a float array to hold texture data based on the type of block
     public static float[] createTexCube(float x, float y, Block block){
         float offset = (96f/16)/96f;
         switch (block.GetBlockType()) {
@@ -365,10 +380,13 @@ public class Chunk{
         }
     }
     
+    //gets the brightness for the block (white)
     private float[] getCubeColor(Block block){
         return new float[] { 1, 1, 1 };
     }
     
+    
+    //rebuilds the whole chunk mesh whenever it is updated
     public void rebuildMesh(float startX, float startY, float startZ){
         VBOColorHandle = glGenBuffers();
         VBOVertexHandle = glGenBuffers();
@@ -413,6 +431,7 @@ public class Chunk{
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     
+    //renders chunk
     public void render(){
         glPushMatrix();
         glBindBuffer(GL_ARRAY_BUFFER, VBOVertexHandle);

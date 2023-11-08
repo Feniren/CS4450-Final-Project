@@ -1,3 +1,14 @@
+/***************************************************************
+* file: FPCameraController.java
+* author: Aidan, Jace
+* class: CS 4450 Computer Graphics
+*
+* assignment: final program
+* date last modified: 11/7/2023
+*
+* purpose: This creates and controls camera
+*
+****************************************************************/
 // package
 package finalprogram;
 
