@@ -31,6 +31,7 @@ import org.newdawn.slick.util.ResourceLoader;
 public class Chunk{
     static final int CHUNK_SIZE = 30;
     static final int CUBE_LENGTH = 2;
+    static final int WATER_LEVEL = 17;
     private Block[][][] Blocks;
     private int VBOVertexHandle;
     private int VBOColorHandle;
@@ -50,27 +51,15 @@ public class Chunk{
 
         r= new Random();
         Blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
-        
+        /*
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 for (int z = 0; z < CHUNK_SIZE; z++) {
-                    if(r.nextFloat()>0.8f){
-                        Blocks[x][y][z] = new
-                        Block(BlockType.Grass);
-                    }else if(r.nextFloat()>0.6f){
-                        Blocks[x][y][z] = new Block(BlockType.Stone);
-                    }else if(r.nextFloat()>0.4f){
-                        Blocks[x][y][z] = new Block(BlockType.Bedrock);
-                    }else if(r.nextFloat()>0.2f){
-                        Blocks[x][y][z] = new Block(BlockType.Dirt);
-                    }else if(r.nextFloat()>0.1f){
-                        Blocks[x][y][z] = new Block(BlockType.Sand);
-                    }else{
-                        Blocks[x][y][z] = new Block(BlockType.Water);
-                    }
+                    Blocks[x][y][z] = new
+                    Block(BlockType.Grass);
                 }
             }
-        }
+        }*/
         
         VBOColorHandle = glGenBuffers();
         VBOVertexHandle = glGenBuffers();
@@ -395,7 +384,7 @@ public class Chunk{
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
         //SimplexNoise noise = new SimplexNoise(20, .25, r.nextInt());
-        SimplexNoise noise2 = new SimplexNoise(20, .25, r.nextInt());
+        SimplexNoise noise2 = new SimplexNoise(20, .34, r.nextInt());
         
         float height;
         
@@ -403,14 +392,41 @@ public class Chunk{
             for (float z = 0; z < CHUNK_SIZE; z += 1){
                 //height = (startY + (int)(10 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH) /4 + 1;
                 height = startY;
-                height += (noise2.getNoise((int)x, (int)z)+.9)*10;
-                
+                height += (noise2.getNoise((int)x, (int)z)+.9)*15 + 5;
+                        
                 for(float y = 0; y < CHUNK_SIZE; y++){
                     
-                    if (y <= height){
+                    if (y <= height || (height <= WATER_LEVEL && y <= WATER_LEVEL)){
+                        
+                        if(height <= WATER_LEVEL && y >= height) {
+                            //generate rivers
+                            if (y <=height+1) {
+                                Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Sand);
+                            } else if (y <= WATER_LEVEL) {
+                                Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Water);
+                            }
+                        } else {
+                            //generate normal land
+                            if(y==0) {
+                                Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Bedrock);
+                            } else if(y<=height-4){
+                                Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
+                            } else {
+                                if(y<=height-1 || height <= WATER_LEVEL){
+                                    Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
+                                } else {
+                                    Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Grass);
+                                }
+                                
+                            }
+                        }
+                        
+                        
+                        
                         VertexPositionData.put(createCube((float) (startX + x * CUBE_LENGTH), (float)(y*CUBE_LENGTH+ (int)(CHUNK_SIZE*.8)), (float) (startZ + z * CUBE_LENGTH)));
                         VertexColorData.put(createCubeVertexCol(getCubeColor(Blocks[(int) x][(int) y][(int) z])));
                         VertexTextureData.put(createTexCube((float)0, (float)0,Blocks[(int)(x)][(int) (y)][(int) (z)]));
+                        
                     }
                 }
             }
