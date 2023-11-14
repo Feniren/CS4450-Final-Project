@@ -53,6 +53,11 @@ public class FPCameraController {
     // purpose: change the pitch by given ammount
     public void pitch(float amount) {
         pitch -= amount;
+        if(pitch>90) {
+            pitch = 90;
+        } else if (pitch<-90) {
+            pitch =-90;
+        }
     }
     
     // method: walkForward
