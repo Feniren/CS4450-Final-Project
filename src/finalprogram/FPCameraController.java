@@ -13,6 +13,7 @@
 package finalprogram;
 
 // imports
+import java.util.Random;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -27,9 +28,21 @@ public class FPCameraController {
     private float yaw = 0.0f;
     
     private float pitch = 0.0f;
+    private float roll = 0.0f;
     private Vector3Float me;
     
-    private Chunk chunk;
+    private Random r = new Random();
+    private int seed =r.nextInt();
+    
+    private Chunk chunkBL;
+    private Chunk chunkBC;
+    private Chunk chunkBR;
+    private Chunk chunkML;
+    private Chunk chunkMC;
+    private Chunk chunkMR;
+    private Chunk chunkTL;
+    private Chunk chunkTC;
+    private Chunk chunkTR;
     
     // method: FPCameraController
     // purpose: set up position locations
@@ -40,13 +53,40 @@ public class FPCameraController {
         lPosition.y = 15f;
         lPosition.z = 0f;
         
-        chunk = new Chunk(0, 0, 0);
+        chunkBL = new Chunk(0, 0, 0, seed);
+        chunkBC = new Chunk(-60, 0, 0, seed);
+        chunkBR = new Chunk(-120, 0, 0, seed);
+        
+        chunkML = new Chunk(0, 0, -60, seed);
+        chunkMC = new Chunk(-60, 0, -60, seed);
+        chunkMR = new Chunk(-120, 0, -60, seed);
+        
+        chunkTL = new Chunk(0, 0, -120, seed);
+        chunkTC = new Chunk(-60, 0, -120, seed);
+        chunkTR = new Chunk(-120, 0, -120, seed);
     }
 
     // method: yaw
     // purpose: change the yaw by given ammount
     public void yaw(float amount) {
         yaw += amount;
+    }
+    
+    // method: roll
+    // purpose: change the roll to simulate wip of camera
+    public void roll(float amount) {
+        if (amount > 4) {
+            roll += 1;
+        } else if (amount < -4) {
+            roll += -1;
+        } else {
+            roll += (amount)/4;
+        }
+        roll = roll * 9 / 10;
+
+        if (Math.abs(roll) < .5) {
+            roll = 0;
+        }
     }
 
     // method: pitch
@@ -111,15 +151,20 @@ public class FPCameraController {
     // method: lookThrough
     // purpose: move matrix to be looking through camera
     public void lookThrough() {
+        glRotatef(roll, 0.0f, 0.0f, 1.0f);
+        
         glRotatef(pitch, 1.0f, 0.0f, 0.0f);
         glRotatef(yaw, 0.0f, 1.0f, 0.0f);
+        
         glTranslatef(position.x, position.y, position.z);
+        
     }
     
     // method: gameLoop
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
-        FPCameraController camera = new FPCameraController(0, 0, 0);
+        FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
+        
         float dx = 0.0f;
         float dy = 0.0f;
         float dt = 0.0f;
@@ -137,6 +182,7 @@ public class FPCameraController {
             
             camera.yaw(dx * mouseSensitivity);
             camera.pitch(dy * mouseSensitivity);
+            camera.roll(dx * mouseSensitivity);
             
             if (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_UP)){
                 camera.walkForward(movementSpeed);
@@ -146,9 +192,11 @@ public class FPCameraController {
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
                 camera.strafeLeft(movementSpeed);
+                camera.roll(-10);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_D) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
                 camera.strafeRight(movementSpeed);
+                camera.roll(10);
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
                 camera.moveUp(movementSpeed);
@@ -158,58 +206,24 @@ public class FPCameraController {
             }
             glLoadIdentity();
             camera.lookThrough();
+            Display.setTitle("Voxel World ("+camera.position.x/2+", "+camera.position.y/2+", "+camera.position.z/2+")");
+            
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            chunk.render();
-            //render();
+            chunkBL.render();
+            chunkBC.render();
+            chunkBR.render();
+            chunkML.render();
+            chunkMC.render();
+            chunkMR.render();
+            chunkTL.render();
+            chunkTC.render();
+            chunkTR.render();
+            
             Display.update();
             Display.sync(60);
         }
         Display.destroy();
     }
     
-    // method: render
-    // purpose: render the world as quads
-    private void render() {
-        try {
-            glBegin(GL_QUADS);
-                //Top
-                glColor3f(1.0f, 1.0f, 1.0f);
-                glVertex3f(1.0f, 1.0f, -1.0f);
-                glVertex3f(-1.0f, 1.0f, -1.0f);
-                glVertex3f(-1.0f, 1.0f, 1.0f);
-                glVertex3f(1.0f, 1.0f, 1.0f);
-                //Bottom
-                glColor3f(0.0f, 0.0f, 1.0f);
-                glVertex3f(1.0f, -1.0f, 1.0f);
-                glVertex3f(-1.0f, -1.0f, 1.0f);
-                glVertex3f(-1.0f, -1.0f, -1.0f);
-                glVertex3f(1.0f, -1.0f, -1.0f);
-                //Front
-                glColor3f(0.0f, 1.0f, 0.0f);
-                glVertex3f(1.0f, 1.0f, 1.0f);
-                glVertex3f(-1.0f, 1.0f, 1.0f);
-                glVertex3f(-1.0f, -1.0f, 1.0f);
-                glVertex3f(1.0f, -1.0f, 1.0f);
-                //Back
-                glColor3f(1.0f, 0.0f, 0.0f);
-                glVertex3f(1.0f, -1.0f, -1.0f);
-                glVertex3f(-1.0f, -1.0f, -1.0f);
-                glVertex3f(-1.0f, 1.0f, -1.0f);
-                glVertex3f(1.0f, 1.0f, -1.0f);
-                //Left
-                glColor3f(0.0f, 1.0f, 1.0f);
-                glVertex3f(-1.0f, 1.0f, 1.0f);
-                glVertex3f(-1.0f, 1.0f, -1.0f);
-                glVertex3f(-1.0f, -1.0f, -1.0f);
-                glVertex3f(-1.0f, -1.0f, 1.0f);
-                //Right
-                glColor3f(1.0f, 1.0f, 0.0f);
-                glVertex3f(1.0f, 1.0f, -1.0f);
-                glVertex3f(1.0f, 1.0f, 1.0f);
-                glVertex3f(1.0f, -1.0f, 1.0f);
-                glVertex3f(1.0f, -1.0f, -1.0f);
-            glEnd();
-        } catch (Exception e) {
-        }
-    }
+    
 }

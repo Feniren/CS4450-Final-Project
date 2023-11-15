@@ -31,7 +31,7 @@ import org.newdawn.slick.util.ResourceLoader;
 public class Chunk{
     static final int CHUNK_SIZE = 30;
     static final int CUBE_LENGTH = 2;
-    static final int WATER_LEVEL = 17;
+    static final int WATER_LEVEL = 16;
     private Block[][][] Blocks;
     private int VBOVertexHandle;
     private int VBOColorHandle;
@@ -41,7 +41,7 @@ public class Chunk{
     private Texture texture;
     
     //constructor
-    public Chunk(int startX, int startY, int startZ){
+    public Chunk(int startX, int startY, int startZ, int seed){
         try{
             texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("Terrain.png"));
         }
@@ -69,7 +69,7 @@ public class Chunk{
         StartY = startY;
         StartZ = startZ;
         
-        rebuildMesh(startX, startY, startZ);
+        rebuildMesh(startX, startY, startZ, seed);
     }
     
     //creates quads for cubes
@@ -376,23 +376,20 @@ public class Chunk{
     
     
     //rebuilds the whole chunk mesh whenever it is updated
-    public void rebuildMesh(float startX, float startY, float startZ){
+    public void rebuildMesh(float startX, float startY, float startZ, int seed){
         VBOColorHandle = glGenBuffers();
         VBOVertexHandle = glGenBuffers();
         VBOTextureHandle = glGenBuffers();
         FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
-        //SimplexNoise noise = new SimplexNoise(20, .25, r.nextInt());
-        SimplexNoise noise2 = new SimplexNoise(20, .34, r.nextInt());
+        SimplexNoise noise2 = new SimplexNoise(30, .29, seed);
         
         float height;
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){
-                //height = (startY + (int)(10 * noise.getNoise((int)x, (int)z)) * CUBE_LENGTH) /4 + 1;
-                height = startY;
-                height += (noise2.getNoise((int)x, (int)z)+.9)*15 + 5;
+                height = (float) (noise2.getNoise((int)(-x+StartX/2), (int)(-z+StartZ/2))+.9)*15 + 5;
                         
                 for(float y = 0; y < CHUNK_SIZE; y++){
                     
@@ -423,7 +420,7 @@ public class Chunk{
                         
                         
                         
-                        VertexPositionData.put(createCube((float) (startX + x * CUBE_LENGTH), (float)(y*CUBE_LENGTH+ (int)(CHUNK_SIZE*.8)), (float) (startZ + z * CUBE_LENGTH)));
+                        VertexPositionData.put(createCube((float) (x * CUBE_LENGTH), (float)(y*CUBE_LENGTH+ (int)(CHUNK_SIZE*.8)), (float) (z * CUBE_LENGTH)));
                         VertexColorData.put(createCubeVertexCol(getCubeColor(Blocks[(int) x][(int) y][(int) z])));
                         VertexTextureData.put(createTexCube((float)0, (float)0,Blocks[(int)(x)][(int) (y)][(int) (z)]));
                         
@@ -449,7 +446,9 @@ public class Chunk{
     
     //renders chunk
     public void render(){
+        
         glPushMatrix();
+        glTranslatef(1 - StartX, -23 - StartY, 2 - StartZ);
         glBindBuffer(GL_ARRAY_BUFFER, VBOVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);
         glBindBuffer(GL_ARRAY_BUFFER, VBOColorHandle);
