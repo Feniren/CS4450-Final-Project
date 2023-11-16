@@ -24,11 +24,11 @@ import org.lwjgl.Sys;
 public class FPCameraController {
     private Vector3f position = null;
     private Vector3f lPosition = null;
-    
     private float yaw = 0.0f;
     
     private float pitch = 0.0f;
     private float roll = 0.0f;
+    
     private Vector3Float me;
     
     private Random r = new Random();
@@ -43,6 +43,7 @@ public class FPCameraController {
     private Chunk chunkTL;
     private Chunk chunkTC;
     private Chunk chunkTR;
+    
     
     // method: FPCameraController
     // purpose: set up position locations
@@ -163,19 +164,21 @@ public class FPCameraController {
     // method: gameLoop
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
-        FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
-        
+        //FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
+        FPCameraController camera = new FPCameraController(0,0,0);
         float dx = 0.0f;
         float dy = 0.0f;
         float dt = 0.0f;
         float lastTime = 0.0f;
         long time = 0;
+        long timeActionable = 0;
         float mouseSensitivity = 0.11f;
         float movementSpeed = .21f;
         Mouse.setGrabbed(true);
         while (!Display.isCloseRequested()&& !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-            time = Sys.getTime();
             lastTime = time;
+            time = Sys.getTime();
+            
             
             dx = Mouse.getDX();
             dy = Mouse.getDY();
@@ -184,31 +187,44 @@ public class FPCameraController {
             camera.pitch(dy * mouseSensitivity);
             camera.roll(dx * mouseSensitivity);
             
-            if (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_UP)){
-                camera.walkForward(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_S) || Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
-                camera.walkBackwards(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-                camera.strafeLeft(movementSpeed);
-                camera.roll(-10);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_D) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-                camera.strafeRight(movementSpeed);
-                camera.roll(10);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-                camera.moveUp(movementSpeed);
-            }
-            if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-                camera.moveDown(movementSpeed);
-            }
-            glLoadIdentity();
-            camera.lookThrough();
-            Display.setTitle("Voxel World ("+camera.position.x/2+", "+camera.position.y/2+", "+camera.position.z/2+")");
+            camera.handleMovement(
+                    movementSpeed,
+                    camera,
+                    Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_UP),
+                    Keyboard.isKeyDown(Keyboard.KEY_S) || Keyboard.isKeyDown(Keyboard.KEY_DOWN),
+                    Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT),
+                    Keyboard.isKeyDown(Keyboard.KEY_D) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT),
+                    Keyboard.isKeyDown(Keyboard.KEY_SPACE),
+                    Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
+                            
+            );
             
+            glLoadIdentity();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            
+            camera.lookThrough();
+            Display.setTitle("Voxel World ("+
+                    (int)-camera.position.x/2+", "+
+                    (int)-camera.position.y/2+", "+
+                    (int)-camera.position.z/2+
+                    ")");
+            
+            if(Keyboard.isKeyDown(Keyboard.KEY_Q)&&time>timeActionable){
+                chunkBL.setBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2, BlockType.Plank);
+                chunkBL.rebuildMesh();
+                timeActionable = time + 100;
+                System.out.println("Plank " + time);
+            } else if(Keyboard.isKeyDown(Keyboard.KEY_E)&&time>timeActionable){
+                chunkBL.destroyBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2);
+                chunkBL.rebuildMesh();
+                timeActionable = time + 100;
+                System.out.println("Air " + time);
+            } 
+            
+            
+            //chunkMC.Blocks[]
+            
+            
             chunkBL.render();
             chunkBC.render();
             chunkBR.render();
@@ -219,11 +235,59 @@ public class FPCameraController {
             chunkTC.render();
             chunkTR.render();
             
+            glBegin(GL_QUADS);
+                glColor4f(1.0f, 1.0f, 1.0f, 1f);
+                glVertex3f(1.0f, -1.0f, -1.0f);
+                glVertex3f(-1.0f, -1.0f, -1.0f);
+                glVertex3f(-1.0f, 1.0f, -1.0f);
+                glVertex3f(1.0f, 1.0f, -1.0f);
+            glEnd();
+            
             Display.update();
             Display.sync(60);
         }
         Display.destroy();
     }
     
+    public void handleMovement(float movementSpeed, FPCameraController camera,
+            boolean forward, boolean backward, boolean left, boolean right, boolean up, boolean down) {
+        if((forward ^ backward) && (left ^ right)) {
+            if (forward){
+                camera.walkForward(movementSpeed/(float) Math.sqrt(2));
+            }
+            if (backward){
+                camera.walkBackwards(movementSpeed/(float) Math.sqrt(2));
+            }
+            if (left) {
+                camera.strafeLeft(movementSpeed/(float) Math.sqrt(2));
+                camera.roll(-10);
+            }
+            if (right) {
+                camera.strafeRight(movementSpeed/(float) Math.sqrt(2));
+                camera.roll(10);
+            }
+        } else {
+            if (forward){
+                camera.walkForward(movementSpeed);
+            }
+            if (backward){
+                camera.walkBackwards(movementSpeed);
+            }
+            if (left) {
+                camera.strafeLeft(movementSpeed);
+                camera.roll(-10);
+            }
+            if (right) {
+                camera.strafeRight(movementSpeed);
+                camera.roll(10);
+            }
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+            camera.moveUp(movementSpeed);
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+            camera.moveDown(movementSpeed);
+        }
+    }
     
 }

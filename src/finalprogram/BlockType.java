@@ -25,5 +25,6 @@ public enum BlockType{
     Grass,
     Sand,
     Stone,
-    Water
+    Water,
+    Plank
 }

@@ -66,7 +66,7 @@ public class FinalProgram {
     // method: initGL
     // purpose: start up openGL
     private void initGL() {
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(.8f, .8f, 1f, 1.0f);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         GLU.gluPerspective(90.0f, (float) displayMode.getWidth() / (float) displayMode.getHeight(), 0.1f, 300.0f);
@@ -78,10 +78,8 @@ public class FinalProgram {
         glEnable(GL_DEPTH_TEST);
         glEnable (GL_CULL_FACE);
         glFrontFace(GL_CW);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable( GL_BLEND );
-        
         glEnable(GL_TEXTURE_2D);
+        
         glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 
     }
