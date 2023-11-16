@@ -69,7 +69,8 @@ public class Chunk{
         StartY = startY;
         StartZ = startZ;
         
-        rebuildMesh(startX, startY, startZ, seed);
+        genMesh(seed);
+        rebuildMesh();
     }
     
     //creates quads for cubes
@@ -110,7 +111,7 @@ public class Chunk{
     }
     
     //returns a float array that holds vertex color data
-    private float[] createCubeVertexCol(float[] CubeColorArray){
+    private static float[] createCubeVertexCol(float[] CubeColorArray){
         float[] cubeColors = new float[CubeColorArray.length * 4 * 6];
         
         for (int i = 0; i < cubeColors.length; i++) {
@@ -125,11 +126,6 @@ public class Chunk{
         float offset = (96f/16)/96f;
         switch (block.GetBlockType()) {
             case Grass:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -165,11 +161,6 @@ public class Chunk{
                 };
                 
             case Stone:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -205,11 +196,6 @@ public class Chunk{
                 };
                 
             case Bedrock:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -245,11 +231,6 @@ public class Chunk{
                 };
                 
             case Dirt:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -285,11 +266,6 @@ public class Chunk{
                 };
                 
             case Sand:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -325,11 +301,6 @@ public class Chunk{
                 };
                 
             case Water:
-                /*
-                return new float[]{
-                    x, y,
-                    x + offset, y + offset
-                };*/
                 
                 return new float[] {
                 // BOTTOM QUAD(DOWN=+Y)
@@ -364,67 +335,109 @@ public class Chunk{
                 x + offset*14, y + offset*0,
                 };
                 
+            case Plank:
+                
+                return new float[] {
+                // BOTTOM QUAD(DOWN=+Y)
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                // TOP!
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                // FRONT QUAD
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                // BACK QUAD
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                // LEFT QUAD
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                // RIGHT QUAD
+                x + offset*4, y + offset*1,
+                x + offset*5, y + offset*1,
+                x + offset*5, y + offset*0,
+                x + offset*4, y + offset*0,
+                };
+                
             default:
                 return new float[]{0.0f};
         }
     }
     
     //gets the brightness for the block (white)
-    private float[] getCubeColor(Block block){
+    private static float[] getCubeColor(Block block){
         return new float[] { 1, 1, 1 };
     }
     
-    
-    //rebuilds the whole chunk mesh whenever it is updated
-    public void rebuildMesh(float startX, float startY, float startZ, int seed){
-        VBOColorHandle = glGenBuffers();
-        VBOVertexHandle = glGenBuffers();
-        VBOTextureHandle = glGenBuffers();
-        FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
-        FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
-        FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
+    public void genMesh(int seed){
         SimplexNoise noise2 = new SimplexNoise(30, .29, seed);
         
         float height;
-        
-        for (float x = 0; x < CHUNK_SIZE; x += 1){
-            for (float z = 0; z < CHUNK_SIZE; z += 1){
-                height = (float) (noise2.getNoise((int)(-x+StartX/2), (int)(-z+StartZ/2))+.9)*15 + 5;
-                        
-                for(float y = 0; y < CHUNK_SIZE; y++){
-                    
-                    if (y <= height || (height <= WATER_LEVEL && y <= WATER_LEVEL)){
-                        
-                        if(height <= WATER_LEVEL && y >= height) {
+        for (float x = 0; x < CHUNK_SIZE; x += 1) {
+            for (float z = 0; z < CHUNK_SIZE; z += 1) {
+                height = (float) (noise2.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)) + .9) * 15 + 5;
+
+                for (float y = 0; y < CHUNK_SIZE; y++) {
+
+                    if (y <= height || (height <= WATER_LEVEL && y <= WATER_LEVEL)) {
+
+                        if (height <= WATER_LEVEL && y >= height) {
                             //generate rivers
-                            if (y <=height+1) {
+                            if (y <= height + 1) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Sand);
                             } else if (y <= WATER_LEVEL) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Water);
                             }
                         } else {
                             //generate normal land
-                            if(y==0) {
-                                Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Bedrock);
-                            } else if(y<=height-4){
-                                Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
+                            if (y == 0) {
+                                Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Bedrock);
+                            } else if (y <= height - 4) {
+                                Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
                             } else {
-                                if(y<=height-1 || height <= WATER_LEVEL){
-                                    Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
+                                if (y <= height - 1 || height <= WATER_LEVEL) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
                                 } else {
-                                    Blocks[(int)(x)][(int) (y)][(int) (z)] = new Block(BlockType.Grass);
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Grass);
                                 }
-                                
+
                             }
                         }
-                        
-                        
-                        
-                        VertexPositionData.put(createCube((float) (x * CUBE_LENGTH), (float)(y*CUBE_LENGTH+ (int)(CHUNK_SIZE*.8)), (float) (z * CUBE_LENGTH)));
-                        VertexColorData.put(createCubeVertexCol(getCubeColor(Blocks[(int) x][(int) y][(int) z])));
-                        VertexTextureData.put(createTexCube((float)0, (float)0,Blocks[(int)(x)][(int) (y)][(int) (z)]));
-                        
                     }
+                }
+            }
+        }
+    }
+    
+    //rebuilds the whole chunk mesh whenever it is updated
+    public void rebuildMesh(){
+        VBOColorHandle = glGenBuffers();
+        VBOVertexHandle = glGenBuffers();
+        VBOTextureHandle = glGenBuffers();
+        FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
+        FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
+        FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
+        
+        for (float x = 0; x < CHUNK_SIZE; x += 1){
+            for (float z = 0; z < CHUNK_SIZE; z += 1){
+                for(float y = 0; y < CHUNK_SIZE; y++){
+                    try {
+                        Blocks[(int)x][(int)y][(int)z].GetBlockType();
+                        VertexPositionData.put(createCube((float) (x * CUBE_LENGTH), (float) (y * CUBE_LENGTH + (int) (CHUNK_SIZE * .8)), (float) (z * CUBE_LENGTH)));
+                        VertexColorData.put(createCubeVertexCol(getCubeColor(Blocks[(int) x][(int) y][(int) z])));
+                        VertexTextureData.put(createTexCube((float) 0, (float) 0, Blocks[(int) (x)][(int) (y)][(int) (z)]));
+                    } catch (Exception e) {}
                 }
             }
         }
@@ -458,5 +471,29 @@ public class Chunk{
         glTexCoordPointer(2,GL_FLOAT,0,0L);
         glDrawArrays(GL_QUADS, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 24);
         glPopMatrix();
+    }
+    
+    public void setBlock(float x, float y, float z, BlockType bt) {
+        try{
+            Blocks[(int)x][(int)y][(int)z] = new Block(bt);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void destroyBlock(float x, float y, float z) {
+        try{
+            Blocks[(int)x][(int)y][(int)z] = null;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public BlockType getBlock(float x, float y, float z, BlockType bt) {
+        try{
+            return Blocks[(int)x][(int)y][(int)z].GetBlockType();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
