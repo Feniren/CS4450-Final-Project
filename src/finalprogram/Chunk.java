@@ -381,12 +381,13 @@ public class Chunk{
     }
     
     public void genMesh(int seed){
-        SimplexNoise noise2 = new SimplexNoise(30, .29, seed);
-        
+        SimplexNoise primaryNoise = new SimplexNoise(30, .29, seed);
+        SimplexNoise cavexzNoise = new SimplexNoise(30, .5, seed+1);
+        SimplexNoise caveyNoise = new SimplexNoise(30, .2, seed+2);
         float height;
         for (float x = 0; x < CHUNK_SIZE; x += 1) {
             for (float z = 0; z < CHUNK_SIZE; z += 1) {
-                height = (float) (noise2.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)) + .9) * 15 + 5;
+                height = (float) (primaryNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)) + .9) * 15 + 5;
 
                 for (float y = 0; y < CHUNK_SIZE; y++) {
 
@@ -405,6 +406,10 @@ public class Chunk{
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Bedrock);
                             } else if (y <= height - 4) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
+                                if(Math.abs(cavexzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>.05 &&
+                                        2>Math.abs(y-7-25*caveyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = null;
+                                }
                             } else {
                                 if (y <= height - 1 || height <= WATER_LEVEL) {
                                     Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
@@ -461,6 +466,7 @@ public class Chunk{
     public void render(){
         
         glPushMatrix();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTranslatef(1 - StartX, -23 - StartY, 2 - StartZ);
         glBindBuffer(GL_ARRAY_BUFFER, VBOVertexHandle);
         glVertexPointer(3, GL_FLOAT, 0, 0L);

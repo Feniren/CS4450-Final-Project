@@ -13,7 +13,9 @@
 package finalprogram;
 
 // imports
+import java.nio.FloatBuffer;
 import java.util.Random;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -29,7 +31,10 @@ public class FPCameraController {
     private float pitch = 0.0f;
     private float roll = 0.0f;
     
-    private Vector3Float me;
+    
+    
+    private Vector3f velocity;
+    //private Vector3Float acceleration;
     
     private Random r = new Random();
     private int seed =r.nextInt();
@@ -53,6 +58,11 @@ public class FPCameraController {
         lPosition.x = 0f;
         lPosition.y = 15f;
         lPosition.z = 0f;
+        
+        velocity = new Vector3f(x, y, z);
+        velocity.x = 0f;
+        velocity.y = 0f;
+        velocity.z = 0f;
         
         chunkBL = new Chunk(0, 0, 0, seed);
         chunkBC = new Chunk(-60, 0, 0, seed);
@@ -106,8 +116,8 @@ public class FPCameraController {
     public void walkForward(float distance) {
         float xOffset = distance * (float) Math.sin(Math.toRadians(yaw));
         float zOffset = distance * (float) Math.cos(Math.toRadians(yaw));
-        position.x -= xOffset;
-        position.z += zOffset;
+        velocity.x -= xOffset;
+        velocity.z += zOffset;
     }
     
     // method: walkBackwards
@@ -115,8 +125,8 @@ public class FPCameraController {
     public void walkBackwards(float distance) {
         float xOffset = distance * (float) Math.sin(Math.toRadians(yaw));
         float zOffset = distance * (float) Math.cos(Math.toRadians(yaw));
-        position.x += xOffset;
-        position.z -= zOffset;
+        velocity.x += xOffset;
+        velocity.z -= zOffset;
     }
     
     // method: strafeLeft
@@ -124,8 +134,8 @@ public class FPCameraController {
     public void strafeLeft(float distance) {
         float xOffset = distance * (float) Math.sin(Math.toRadians(yaw - 90));
         float zOffset = distance * (float) Math.cos(Math.toRadians(yaw - 90));
-        position.x -= xOffset;
-        position.z += zOffset;
+        velocity.x -= xOffset;
+        velocity.z += zOffset;
     }
     
     // method: strafeRight
@@ -133,20 +143,20 @@ public class FPCameraController {
     public void strafeRight(float distance) {
         float xOffset = distance * (float) Math.sin(Math.toRadians(yaw + 90));
         float zOffset = distance * (float) Math.cos(Math.toRadians(yaw + 90));
-        position.x -= xOffset;
-        position.z += zOffset;
+        velocity.x -= xOffset;
+        velocity.z += zOffset;
     }
     
     // method: moveUp
     // purpose: move camera up
     public void moveUp(float distance) {
-        position.y -= distance;
+        velocity.y -= distance;
     }
     
     // method: moveDown
     // purpose: move camera down
     public void moveDown(float distance) {
-        position.y += distance;
+        velocity.y += distance;
     }
     
     // method: lookThrough
@@ -173,7 +183,9 @@ public class FPCameraController {
         long time = 0;
         long timeActionable = 0;
         float mouseSensitivity = 0.11f;
-        float movementSpeed = .21f;
+        float movementSpeed = .02f;
+        float friction = 1.1f;
+        
         Mouse.setGrabbed(true);
         while (!Display.isCloseRequested()&& !Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             lastTime = time;
@@ -198,6 +210,14 @@ public class FPCameraController {
                     Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
                             
             );
+            // handle velocity
+            camera.position.x += camera.velocity.x;
+            camera.position.y += camera.velocity.y;
+            camera.position.z += camera.velocity.z;
+            // handle friction
+            camera.velocity.x /= friction;
+            camera.velocity.z /= friction;
+            camera.velocity.y /= friction;
             
             glLoadIdentity();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -209,11 +229,14 @@ public class FPCameraController {
                     (int)-camera.position.z/2+
                     ")");
             
+            //building
             if(Keyboard.isKeyDown(Keyboard.KEY_Q)&&time>timeActionable){
                 chunkBL.setBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2, BlockType.Plank);
                 chunkBL.rebuildMesh();
                 timeActionable = time + 100;
                 System.out.println("Plank " + time);
+                
+            //breaking
             } else if(Keyboard.isKeyDown(Keyboard.KEY_E)&&time>timeActionable){
                 chunkBL.destroyBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2);
                 chunkBL.rebuildMesh();
