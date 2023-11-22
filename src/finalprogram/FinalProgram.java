@@ -85,8 +85,6 @@ public class FinalProgram {
         glFrontFace(GL_CW);
         glEnable(GL_TEXTURE_2D);
         
-        
-        /*
         //lighting
         initLightArrays();
         glLight(GL_LIGHT0, GL_POSITION, lightPosition); //sets our light’s position
@@ -95,7 +93,6 @@ public class FinalProgram {
         glLight(GL_LIGHT0, GL_AMBIENT, whiteLight);//sets our ambient light
         glEnable(GL_LIGHTING);//enables our lighting
         glEnable(GL_LIGHT0);//enables light0
-           */
         
         glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 
@@ -107,13 +104,11 @@ public class FinalProgram {
         FinalProgram basic = new FinalProgram();
         basic.start();
     }
-    /*
     private void initLightArrays() {
         lightPosition = BufferUtils.createFloatBuffer(4);
         lightPosition.put(100.0f).put(100.0f).put(100.0f).put(1.0f).flip();
         whiteLight = BufferUtils.createFloatBuffer(4);
         whiteLight.put(1.0f).put(1.0f).put(1.0f).put(0.0f).flip();
     }
-    */
     
 }
