@@ -169,6 +169,9 @@ public class FPCameraController {
         
         glTranslatef(position.x, position.y, position.z);
         
+        FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
+        lightPosition.put(60.0f).put(60.0f).put(100.0f).put(1.0f).flip();
+        glLight(GL_LIGHT0, GL_POSITION, lightPosition);
     }
     
     // method: gameLoop
