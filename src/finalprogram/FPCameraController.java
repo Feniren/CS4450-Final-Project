@@ -22,6 +22,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.Sys;
+import org.lwjgl.util.vector.Vector2f;
 
 public class FPCameraController {
     private Vector3f position = null;
@@ -39,7 +40,7 @@ public class FPCameraController {
     private Random r = new Random();
     private int seed =r.nextInt();
     
-    private Chunk chunkBL;
+    /*private Chunk chunkBL;
     private Chunk chunkBC;
     private Chunk chunkBR;
     private Chunk chunkML;
@@ -47,7 +48,13 @@ public class FPCameraController {
     private Chunk chunkMR;
     private Chunk chunkTL;
     private Chunk chunkTC;
-    private Chunk chunkTR;
+    private Chunk chunkTR;*/
+    
+    int world_length = 100;
+    int world_width = 100;
+    int view_distance = 3;
+    
+    private Chunk[][] chunkStorage = new Chunk[world_length][world_width];
     
     
     // method: FPCameraController
@@ -64,17 +71,11 @@ public class FPCameraController {
         velocity.y = 0f;
         velocity.z = 0f;
         
-        chunkBL = new Chunk(0, 0, 0, seed);
-        chunkBC = new Chunk(-60, 0, 0, seed);
-        chunkBR = new Chunk(-120, 0, 0, seed);
-        
-        chunkML = new Chunk(0, 0, -60, seed);
-        chunkMC = new Chunk(-60, 0, -60, seed);
-        chunkMR = new Chunk(-120, 0, -60, seed);
-        
-        chunkTL = new Chunk(0, 0, -120, seed);
-        chunkTC = new Chunk(-60, 0, -120, seed);
-        chunkTR = new Chunk(-120, 0, -120, seed);
+        /*for(int i = 0; i < world_length; i++) {
+            for(int j = 0; j < world_width; j++) {
+                chunkStorage[i][j] = new Chunk(-60*i, 0, -60*j, seed);
+            }
+        }*/
     }
 
     // method: yaw
@@ -178,7 +179,7 @@ public class FPCameraController {
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
         //FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
-        FPCameraController camera = new FPCameraController(0,0,0);
+        FPCameraController camera = new FPCameraController(-50*30,-60,-50*30);
         float dx = 0.0f;
         float dy = 0.0f;
         float dt = 0.0f;
@@ -213,10 +214,110 @@ public class FPCameraController {
                     Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)
                             
             );
+            
+            // body specs: .5 blocks above | 1.5 blocks below | .25 blocks left,right,forward,back
+            /*
+            // forceField starts at minimum of each | key: x, y, z
+            BlockType[][][] forceField  = new BlockType[3][4][3];
+            for(int i = 0; i<3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    for(int k = 0; k<4; k++) {
+                        try{
+                            forceField[i][j][k] = chunkStorage[(int) (- camera.position.x / 2 / 30)+(i-1)]
+                                    [(int) (- camera.position.z / 2 / 30)+(k-1)].getBlock
+                                    ((int) (- camera.position.x / 2)+(i-1) - 30 * ((int) (- camera.position.x / 2 / 30)+(i-1)),
+                                    (-camera.position.y / 2)+(j-2),
+                                    (int) (- camera.position.z / 2)+(k-1) - 30 * ((int) (- camera.position.z / 2 / 30)+(k-1)));
+                        } catch (Exception e) {}
+                        
+                    }
+                }
+            }
+            
+            // currently janky floor, not working ceilings, and no walls
+            float xOfBlock= - camera.position.x / 2 - (int) (- camera.position.x / 2);
+            float zOfBlock= - camera.position.z / 2 - (int) (- camera.position.z / 2);
+            float yOfBlock= - camera.position.y / 2 - (int) (- camera.position.y / 2) - .5f;
+            // upward collision
+            boolean ceilingHit = false;
+            System.out.println(forceField[0][3][1]);
+            System.out.println(xOfBlock);
+            if(yOfBlock>0) {
+                if(forceField[1][3][1]!=null) {
+                    ceilingHit = true;
+                } else {
+                    if (xOfBlock<.25 && forceField[0][3][1]!=null) {
+                        ceilingHit = true;
+                    } else if (xOfBlock>.75 && forceField[2][3][1]!=null) {
+                        ceilingHit = true;
+                    } else if (zOfBlock<.25 && forceField[1][3][0]!=null) {
+                        ceilingHit = true;
+                    } else if (zOfBlock>.75 && forceField[1][3][2]!=null) {
+                        ceilingHit = true;
+                    } else {
+                        if (xOfBlock < .25 && zOfBlock < .25 && forceField[0][3][0] != null) {
+                            ceilingHit = true;
+                        } else if (xOfBlock > .75 && zOfBlock > .75 && forceField[2][3][2] != null) {
+                            ceilingHit = true;
+                        } else if (xOfBlock < .25 && zOfBlock > .75 && forceField[0][3][2] != null) {
+                            ceilingHit = true;
+                        } else if (zOfBlock > .75 && zOfBlock > .25 && forceField[2][3][0] != null) {
+                            ceilingHit = true;
+                        }
+                    }
+                }
+            }
+            
+            // downward collision
+            boolean floorHit = false;
+            if(yOfBlock<0) {
+                if(forceField[1][0][1]!=null) {
+                    floorHit = true;
+                } else {
+                    if (xOfBlock<.25 && forceField[0][0][1]!=null) {
+                        floorHit = true;
+                    } else if (xOfBlock>.75 && forceField[2][0][1]!=null) {
+                        floorHit = true;
+                    } else if (zOfBlock<.25 && forceField[1][0][0]!=null) {
+                        floorHit = true;
+                    } else if (zOfBlock>.75 && forceField[1][0][2]!=null) {
+                        floorHit = true;
+                    } else {
+                        if (xOfBlock < .25 && zOfBlock < .25 && forceField[0][0][0] != null) {
+                            floorHit = true;
+                        } else if (xOfBlock > .75 && zOfBlock > .75 && forceField[2][0][2] != null) {
+                            floorHit = true;
+                        } else if (xOfBlock < .25 && zOfBlock > .75 && forceField[0][0][2] != null) {
+                            floorHit = true;
+                        } else if (zOfBlock > .75 && zOfBlock > .25 && forceField[2][0][0] != null) {
+                            floorHit = true;
+                        }
+                    }
+                }
+            }
+            
+            if(!floorHit && null!=chunkStorage[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y]) {
+                camera.velocity.y += .02;
+            }
+            if(floorHit) {
+                camera.velocity.y = 0;
+                if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+                    camera.velocity.y = -.3f;
+                }
+            }
+            if (!floorHit || camera.velocity.y<0) {
+                if(!ceilingHit) {
+                    camera.position.y += camera.velocity.y;
+                } else {
+                    camera.velocity.y = 0;
+                }
+            }*/
+            
             // handle velocity
             camera.position.x += camera.velocity.x;
             camera.position.y += camera.velocity.y;
             camera.position.z += camera.velocity.z;
+            
             // handle friction
             camera.velocity.x /= friction;
             camera.velocity.z /= friction;
@@ -226,48 +327,47 @@ public class FPCameraController {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             camera.lookThrough();
-            Display.setTitle("Voxel World ("+
-                    (int)-camera.position.x/2+", "+
-                    (int)-camera.position.y/2+", "+
-                    (int)-camera.position.z/2+
-                    ")");
+            
             
             //building
             if(Keyboard.isKeyDown(Keyboard.KEY_Q)&&time>timeActionable){
-                chunkBL.setBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2, BlockType.Plank);
-                chunkBL.rebuildMesh();
+                chunkStorage[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].setBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-2, (int)getCameraChunkCoords(camera).y, BlockType.Plank);
+                chunkStorage[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
                 timeActionable = time + 100;
                 System.out.println("Plank " + time);
                 
             //breaking
             } else if(Keyboard.isKeyDown(Keyboard.KEY_E)&&time>timeActionable){
-                chunkBL.destroyBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2);
-                chunkBL.rebuildMesh();
+                chunkStorage[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].destroyBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-2, (int)getCameraChunkCoords(camera).y);
+                chunkStorage[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
                 timeActionable = time + 100;
                 System.out.println("Air " + time);
-            } 
+            }
             
-            
-            //chunkMC.Blocks[]
-            
-            
-            chunkBL.render();
-            chunkBC.render();
-            chunkBR.render();
-            chunkML.render();
-            chunkMC.render();
-            chunkMR.render();
-            chunkTL.render();
-            chunkTC.render();
-            chunkTR.render();
-            
-            glBegin(GL_QUADS);
-                glColor4f(1.0f, 1.0f, 1.0f, 1f);
-                glVertex3f(1.0f, -1.0f, -1.0f);
-                glVertex3f(-1.0f, -1.0f, -1.0f);
-                glVertex3f(-1.0f, 1.0f, -1.0f);
-                glVertex3f(1.0f, 1.0f, -1.0f);
-            glEnd();
+            boolean loadedOneChunk = false;
+            for (int i = (int)getCameraChunk(camera).x-view_distance; i < (int)getCameraChunk(camera).x+view_distance; i++) {
+                for (int j = (int)getCameraChunk(camera).y-view_distance; j < (int)getCameraChunk(camera).y+view_distance; j++) {
+                    
+                    if(i<world_length && i>=0 && j<world_width && j>=0) {
+                        if(chunkStorage[i][j] == null && !loadedOneChunk) {
+                            loadedOneChunk = true;
+                            chunkStorage[i][j] = new Chunk(-60*i, 0, -60*j, seed);
+                            chunkStorage[i][j].render();
+                        } else if (chunkStorage[i][j] != null) {
+                            chunkStorage[i][j].render();
+                        }
+                    }
+                }
+            }
+            Display.setTitle("Voxel World g("+
+                    (int)-camera.position.x/2+","+
+                    (int)-camera.position.y/2+","+
+                    (int)-camera.position.z/2+
+                    ") c("+
+                    (int)getCameraChunk(camera).x+","+
+                    (int)getCameraChunk(camera).y+") cc("+
+                    (int)getCameraChunkCoords(camera).x+","+
+                    (int)getCameraChunkCoords(camera).y+")");
             
             Display.update();
             Display.sync(60);
@@ -314,6 +414,13 @@ public class FPCameraController {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
             camera.moveDown(movementSpeed);
         }
+    }
+    public Vector2f getCameraChunk(FPCameraController camera) {
+         return new Vector2f((int) - camera.position.x / 2 / 30, (int) -camera.position.z / 2 / 30);
+    }
+    
+    public Vector2f getCameraChunkCoords(FPCameraController camera) {
+        return new Vector2f(- camera.position.x / 2 - 30 * getCameraChunk(camera).x,-camera.position.z / 2 - 30 * getCameraChunk(camera).y);
     }
     
 }
