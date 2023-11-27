@@ -26,5 +26,9 @@ public enum BlockType{
     Sand,
     Stone,
     Water,
-    Plank
+    Plank,
+    Coal,
+    Gold,
+    Iron,
+    Diamond
 }
