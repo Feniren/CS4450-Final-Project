@@ -17,7 +17,7 @@ package finalprogram;
 
 import java.nio.FloatBuffer;
 import java.util.Random;
-import org.lwjgl.BufferUtis;
+import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import org.newdawn.slick.opengl.Texture;
