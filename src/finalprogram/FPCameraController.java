@@ -56,6 +56,7 @@ public class FPCameraController {
     private MapBase coordinateRegistry;
     private Vector2f currentPosition;
     private int renderDistance;
+    public static boolean worldBuilt = false;
     
     
     // method: FPCameraController
@@ -73,7 +74,7 @@ public class FPCameraController {
         velocity.z = 0f;
         
         worldSize = 10;
-        renderDistance = 1;
+        renderDistance = 2;
         chunks = new Chunk[worldSize][worldSize];
         
         coordinateRegistry = new MapBase();
@@ -81,19 +82,26 @@ public class FPCameraController {
         
         int chunkListPosition = 0;
         
-        for (int i = 0; i < worldSize; i++){
-            for (int j = 0; j < worldSize; j++){
-                chunks[i][j] = new Chunk(i * -60, 0, j * -60, seed);
-                chunks[i][j].SetChunkID(chunkListPosition);
-                
-                coordinates = new Vector2f(j, i);
-                
-                coordinateRegistry.Add(coordinates, chunkListPosition);
-                
-                //System.out.println(coordinates + " " + chunkListPosition + " ");
-                
-                chunkListPosition++;
+        if (!worldBuilt) {
+            for (int i = 0; i < worldSize; i++){
+                for (int j = 0; j < worldSize; j++){
+                    System.out.println("Building World: " + 100*(i*worldSize+j)/(worldSize*worldSize) + "%");
+                    //System.out.println(i);
+                    //System.out.println(j);
+                    chunks[i][j] = new Chunk(i * -60, 0, j * -60, seed);
+                    chunks[i][j].SetChunkID(chunkListPosition);
+
+                    coordinates = new Vector2f(j, i);
+
+                    coordinateRegistry.Add(coordinates, chunkListPosition);
+
+                    //System.out.println(coordinates + " " + chunkListPosition + " ");
+
+                    chunkListPosition++;
+                }
             }
+            System.out.println("Building World: Complete!");
+            worldBuilt = true;
         }
         
         currentChunkID = 0;
@@ -241,7 +249,7 @@ public class FPCameraController {
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
         //FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
-        FPCameraController camera = new FPCameraController(0,0,0);
+        FPCameraController camera = new FPCameraController(worldSize/2*-60,-50,worldSize/2*-60);
         float dx = 0.0f;
         float dy = 0.0f;
         float dt = 0.0f;
@@ -287,6 +295,7 @@ public class FPCameraController {
             
             glLoadIdentity();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             
             camera.lookThrough();
             Display.setTitle("Voxel World ("+
@@ -297,18 +306,24 @@ public class FPCameraController {
             
             //building
             if(Keyboard.isKeyDown(Keyboard.KEY_Q)&&time>timeActionable){
-                chunkBL.setBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2, BlockType.Plank);
-                chunkBL.rebuildMesh();
-                timeActionable = time + 100;
-                System.out.println("Plank " + time);
+                if(BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y)) {
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].setBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y, BlockType.Plank);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
+                    timeActionable = time + 100;
+                    System.out.println("Plank " + time);
+                }
                 
             //breaking
             } else if(Keyboard.isKeyDown(Keyboard.KEY_E)&&time>timeActionable){
-                chunkBL.destroyBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2);
-                chunkBL.rebuildMesh();
-                timeActionable = time + 100;
-                System.out.println("Air " + time);
-            } 
+                if(BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y)
+                        && BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2, (int)getCameraChunkCoords(camera).y)) {
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].destroyBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].destroyBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2, (int)getCameraChunkCoords(camera).y);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
+                    timeActionable = time + 100;
+                    System.out.println("Air " + time);
+                }
+            }
             
             
             //chunkMC.Blocks[]
@@ -317,7 +332,7 @@ public class FPCameraController {
             
             currentChunkID = coordinateRegistry.Find(currentPosition);
             
-            System.out.println(currentPosition + " " + currentChunkID + " ");
+            //System.out.println(currentPosition + " " + currentChunkID + " ");
             
             CalculateRenderDistance();
             
@@ -339,13 +354,13 @@ public class FPCameraController {
             chunkTR.render();
             */
             
-            glBegin(GL_QUADS);
+            /*glBegin(GL_QUADS);
                 glColor4f(1.0f, 1.0f, 1.0f, 1f);
                 glVertex3f(1.0f, -1.0f, -1.0f);
                 glVertex3f(-1.0f, -1.0f, -1.0f);
                 glVertex3f(-1.0f, 1.0f, -1.0f);
                 glVertex3f(1.0f, 1.0f, -1.0f);
-            glEnd();
+            glEnd();*/
             
             Display.update();
             Display.sync(60);
@@ -392,6 +407,14 @@ public class FPCameraController {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
             camera.moveDown(movementSpeed);
         }
+    }
+    
+    public Vector2f getCameraChunk(FPCameraController camera) {
+         return new Vector2f((int) - camera.position.x / 2 / 30, (int) -camera.position.z / 2 / 30);
+    }
+    
+    public Vector2f getCameraChunkCoords(FPCameraController camera) {
+        return new Vector2f(- camera.position.x / 2 - 30 * getCameraChunk(camera).x,-camera.position.z / 2 - 30 * getCameraChunk(camera).y);
     }
     
 }
