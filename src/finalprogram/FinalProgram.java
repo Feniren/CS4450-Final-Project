@@ -27,6 +27,7 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.util.glu.GLU;
 import java.nio.FloatBuffer;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.Color;
 
 public class FinalProgram {
     
@@ -93,6 +94,15 @@ public class FinalProgram {
         glLight(GL_LIGHT0, GL_AMBIENT, whiteLight);//sets our ambient light
         glEnable(GL_LIGHTING);//enables our lighting
         glEnable(GL_LIGHT0);//enables light0
+      
+        /*glEnable(GL_FOG);
+        glFogi(GL_FOG_MODE, GL_EXP);
+        FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
+        fogColor.put(0.8f).put(0.8f).put(1f).put(1.0f).flip();
+        glFog(GL_FOG_COLOR, fogColor);
+        glFogf(GL_FOG_DENSITY, 0.05f);
+        glFogf(GL_FOG_START, 60f);
+        glFogf(GL_FOG_END, 200f);*/
         
         glEnableClientState (GL_TEXTURE_COORD_ARRAY);
 

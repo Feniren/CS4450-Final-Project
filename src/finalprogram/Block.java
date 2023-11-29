@@ -21,6 +21,7 @@ package finalprogram;
  */
 public class Block{
     private int blockID;
+    private int chunkID;
     private boolean isActive;
     private BlockType type;
     private float x;
@@ -42,6 +43,14 @@ public class Block{
     //returns block ID (depricated)
     public int GetBlockID(){
         return blockID;
+    }
+    
+    public void SetChunkID(int ID){
+        chunkID = ID;
+    }
+    
+    public int GetChunkID(){
+        return chunkID;
     }
     
     

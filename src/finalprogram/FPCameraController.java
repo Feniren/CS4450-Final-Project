@@ -16,6 +16,7 @@ package finalprogram;
 import java.nio.FloatBuffer;
 import java.util.Random;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -49,6 +50,14 @@ public class FPCameraController {
     private Chunk chunkTC;
     private Chunk chunkTR;
     
+    private Chunk[][] chunks;
+    private int worldSize;
+    private int currentChunkID;
+    private MapBase coordinateRegistry;
+    private Vector2f currentPosition;
+    private int renderDistance;
+    public static boolean worldBuilt = false;
+    
     
     // method: FPCameraController
     // purpose: set up position locations
@@ -64,6 +73,40 @@ public class FPCameraController {
         velocity.y = 0f;
         velocity.z = 0f;
         
+        worldSize = 10;
+        renderDistance = 2;
+        chunks = new Chunk[worldSize][worldSize];
+        
+        coordinateRegistry = new MapBase();
+        Vector2f coordinates;
+        
+        int chunkListPosition = 0;
+        
+        if (!worldBuilt) {
+            for (int i = 0; i < worldSize; i++){
+                for (int j = 0; j < worldSize; j++){
+                    System.out.println("Building World: " + 100*(i*worldSize+j)/(worldSize*worldSize) + "%");
+                    //System.out.println(i);
+                    //System.out.println(j);
+                    chunks[i][j] = new Chunk(i * -60, 0, j * -60, seed);
+                    chunks[i][j].SetChunkID(chunkListPosition);
+
+                    coordinates = new Vector2f(j, i);
+
+                    coordinateRegistry.Add(coordinates, chunkListPosition);
+
+                    //System.out.println(coordinates + " " + chunkListPosition + " ");
+
+                    chunkListPosition++;
+                }
+            }
+            System.out.println("Building World: Complete!");
+            worldBuilt = true;
+        }
+        
+        currentChunkID = 0;
+        
+        /*
         chunkBL = new Chunk(0, 0, 0, seed);
         chunkBC = new Chunk(-60, 0, 0, seed);
         chunkBR = new Chunk(-120, 0, 0, seed);
@@ -75,6 +118,7 @@ public class FPCameraController {
         chunkTL = new Chunk(0, 0, -120, seed);
         chunkTC = new Chunk(-60, 0, -120, seed);
         chunkTR = new Chunk(-120, 0, -120, seed);
+        */
     }
 
     // method: yaw
@@ -174,11 +218,38 @@ public class FPCameraController {
         glLight(GL_LIGHT0, GL_POSITION, lightPosition);
     }
     
+    public void CalculateRenderDistance(){
+        ResetRenderDistance();
+        
+        for (int i = -renderDistance; i <= renderDistance; i++){
+            for (int j = -renderDistance; j <= renderDistance; j++){
+                try{
+                    chunks[(int)(currentPosition.x) + i][(int)(currentPosition.y) + j].SetVisibility(true);
+                }
+                catch(Exception e){
+                    // 0  1  2  3  4
+                    // 5  6  7  8  9
+                    // 10 11 12 13 14
+                    // 15 16 17 18 19
+                    // 20 21 22 23 24
+                }
+            }
+        }
+    }
+    
+    public void ResetRenderDistance(){
+        for (int i = 0; i < worldSize; i++){
+            for (int j = 0; j < worldSize; j++){
+                chunks[i][j].SetVisibility(false);
+            }
+        }
+    }
+    
     // method: gameLoop
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
         //FPCameraController camera = new FPCameraController(-45*2, -30*2, -45*2);
-        FPCameraController camera = new FPCameraController(0,0,0);
+        FPCameraController camera = new FPCameraController(worldSize/2*-60,-50,worldSize/2*-60);
         float dx = 0.0f;
         float dy = 0.0f;
         float dt = 0.0f;
@@ -224,6 +295,7 @@ public class FPCameraController {
             
             glLoadIdentity();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             
             camera.lookThrough();
             Display.setTitle("Voxel World ("+
@@ -234,23 +306,43 @@ public class FPCameraController {
             
             //building
             if(Keyboard.isKeyDown(Keyboard.KEY_Q)&&time>timeActionable){
-                chunkBL.setBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2, BlockType.Plank);
-                chunkBL.rebuildMesh();
-                timeActionable = time + 100;
-                System.out.println("Plank " + time);
+                if(BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y)) {
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].setBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y, BlockType.Plank);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
+                    timeActionable = time + 100;
+                    System.out.println("Plank " + time);
+                }
                 
             //breaking
             } else if(Keyboard.isKeyDown(Keyboard.KEY_E)&&time>timeActionable){
-                chunkBL.destroyBlock(-camera.position.x / 2, -camera.position.y / 2-1, -camera.position.z / 2);
-                chunkBL.rebuildMesh();
-                timeActionable = time + 100;
-                System.out.println("Air " + time);
-            } 
+                if(BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y)
+                        && BlockType.Bedrock!=chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].getBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2, (int)getCameraChunkCoords(camera).y)) {
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].destroyBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2-1, (int)getCameraChunkCoords(camera).y);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].destroyBlock((int)getCameraChunkCoords(camera).x, -camera.position.y / 2, (int)getCameraChunkCoords(camera).y);
+                    chunks[(int)getCameraChunk(camera).x][(int)getCameraChunk(camera).y].rebuildMesh();
+                    timeActionable = time + 100;
+                    System.out.println("Air " + time);
+                }
+            }
             
             
             //chunkMC.Blocks[]
             
+            currentPosition = new Vector2f((int)(-camera.position.x / 60), (int)(-camera.position.z / 60));
             
+            currentChunkID = coordinateRegistry.Find(currentPosition);
+            
+            //System.out.println(currentPosition + " " + currentChunkID + " ");
+            
+            CalculateRenderDistance();
+            
+            for (int i = 0; i < worldSize; i++){
+                for (int j = 0; j < worldSize; j++){
+                    chunks[i][j].render();
+                }
+            }
+            
+            /*
             chunkBL.render();
             chunkBC.render();
             chunkBR.render();
@@ -260,14 +352,15 @@ public class FPCameraController {
             chunkTL.render();
             chunkTC.render();
             chunkTR.render();
+            */
             
-            glBegin(GL_QUADS);
+            /*glBegin(GL_QUADS);
                 glColor4f(1.0f, 1.0f, 1.0f, 1f);
                 glVertex3f(1.0f, -1.0f, -1.0f);
                 glVertex3f(-1.0f, -1.0f, -1.0f);
                 glVertex3f(-1.0f, 1.0f, -1.0f);
                 glVertex3f(1.0f, 1.0f, -1.0f);
-            glEnd();
+            glEnd();*/
             
             Display.update();
             Display.sync(60);
@@ -314,6 +407,14 @@ public class FPCameraController {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
             camera.moveDown(movementSpeed);
         }
+    }
+    
+    public Vector2f getCameraChunk(FPCameraController camera) {
+         return new Vector2f((int) - camera.position.x / 2 / 30, (int) -camera.position.z / 2 / 30);
+    }
+    
+    public Vector2f getCameraChunkCoords(FPCameraController camera) {
+        return new Vector2f(- camera.position.x / 2 - 30 * getCameraChunk(camera).x,-camera.position.z / 2 - 30 * getCameraChunk(camera).y);
     }
     
 }
