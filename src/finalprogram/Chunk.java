@@ -17,7 +17,7 @@ package finalprogram;
 
 import java.nio.FloatBuffer;
 import java.util.Random;
-import org.lwjgl.BufferUtils;
+import org.lwjgl.BufferUtis;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import org.newdawn.slick.opengl.Texture;
@@ -528,6 +528,7 @@ public class Chunk{
         SimplexNoise primaryNoise = new SimplexNoise(30, .29, seed);
         SimplexNoise cavexzNoise = new SimplexNoise(30, .5, seed+1);
         SimplexNoise caveyNoise = new SimplexNoise(30, .2, seed+2);
+      
         SimplexNoise coalxzNoise = new SimplexNoise(30, .30, seed+3);
         SimplexNoise coalyNoise = new SimplexNoise(30, .2, seed+4);
         SimplexNoise coalyThicknessNoise = new SimplexNoise(30, .2, seed+5);
@@ -540,6 +541,7 @@ public class Chunk{
         SimplexNoise diamondxzNoise = new SimplexNoise(30, .40, seed+12);
         SimplexNoise diamondyNoise = new SimplexNoise(30, .2, seed+13);
         SimplexNoise diamondyThicknessNoise = new SimplexNoise(15, .2, seed+14);
+
         float height;
         for (float x = 0; x < CHUNK_SIZE; x += 1) {
             for (float z = 0; z < CHUNK_SIZE; z += 1) {
@@ -563,6 +565,7 @@ public class Chunk{
                             } else if (y <= height - 4) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
                                 //caves
+
                                 if(Math.abs(cavexzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>.05 &&
                                         2>Math.abs(y-7-25*caveyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
                                     Blocks[(int) (x)][(int) (y)][(int) (z)] = null;
@@ -581,6 +584,7 @@ public class Chunk{
                                         Math.abs(10*diamondyThicknessNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>Math.abs(y-3-13*diamondyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
                                     Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Diamond);
                                 }
+
                             } else {
                                 if (y <= height - 1 || height <= WATER_LEVEL) {
                                     Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
@@ -648,6 +652,7 @@ public class Chunk{
             glDrawArrays(GL_QUADS, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 24);
             glPopMatrix();
         }
+
     }
     
     public void setBlock(float x, float y, float z, BlockType bt) {

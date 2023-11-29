@@ -78,6 +78,7 @@ public class FinalProgram {
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         
+        
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnable(GL_DEPTH_TEST);
@@ -93,7 +94,7 @@ public class FinalProgram {
         glLight(GL_LIGHT0, GL_AMBIENT, whiteLight);//sets our ambient light
         glEnable(GL_LIGHTING);//enables our lighting
         glEnable(GL_LIGHT0);//enables light0
-
+      
         /*glEnable(GL_FOG);
         glFogi(GL_FOG_MODE, GL_EXP);
         FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
@@ -113,7 +114,6 @@ public class FinalProgram {
         FinalProgram basic = new FinalProgram();
         basic.start();
     }
-    
     private void initLightArrays() {
         lightPosition = BufferUtils.createFloatBuffer(4);
         lightPosition.put(100.0f).put(100.0f).put(100.0f).put(1.0f).flip();
