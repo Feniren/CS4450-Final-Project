@@ -374,6 +374,146 @@ public class Chunk{
                 x + offset*4, y + offset*0,
                 };
                 
+            case Coal:
+                
+                return new float[] {
+                // BOTTOM QUAD(DOWN=+Y)
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                // TOP!
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                // FRONT QUAD
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                // BACK QUAD
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                // LEFT QUAD
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                // RIGHT QUAD
+                x + offset*2, y + offset*2,
+                x + offset*3, y + offset*2,
+                x + offset*3, y + offset*3,
+                x + offset*2, y + offset*3,
+                };
+                
+            case Gold:
+                
+                return new float[] {
+                // BOTTOM QUAD(DOWN=+Y)
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                // TOP!
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                // FRONT QUAD
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                // BACK QUAD
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                // LEFT QUAD
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                // RIGHT QUAD
+                x + offset*0, y + offset*2,
+                x + offset*1, y + offset*2,
+                x + offset*1, y + offset*3,
+                x + offset*0, y + offset*3,
+                };
+            
+            case Iron:
+                
+                return new float[] {
+                // BOTTOM QUAD(DOWN=+Y)
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                // TOP!
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                // FRONT QUAD
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                // BACK QUAD
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                // LEFT QUAD
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                // RIGHT QUAD
+                x + offset*1, y + offset*2,
+                x + offset*2, y + offset*2,
+                x + offset*2, y + offset*3,
+                x + offset*1, y + offset*3,
+                };
+                
+            case Diamond:
+                
+                return new float[] {
+                // BOTTOM QUAD(DOWN=+Y)
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                // TOP!
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                // FRONT QUAD
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                // BACK QUAD
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                // LEFT QUAD
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                // RIGHT QUAD
+                x + offset*2, y + offset*3,
+                x + offset*3, y + offset*3,
+                x + offset*3, y + offset*4,
+                x + offset*2, y + offset*4,
+                };
+                
             default:
                 return new float[]{0.0f};
         }
@@ -385,12 +525,25 @@ public class Chunk{
     }
     
     public void genMesh(int seed){
-        SimplexNoise noise2 = new SimplexNoise(30, .29, seed);
-        
+        SimplexNoise primaryNoise = new SimplexNoise(30, .29, seed);
+        SimplexNoise cavexzNoise = new SimplexNoise(30, .5, seed+1);
+        SimplexNoise caveyNoise = new SimplexNoise(30, .2, seed+2);
+        SimplexNoise coalxzNoise = new SimplexNoise(30, .30, seed+3);
+        SimplexNoise coalyNoise = new SimplexNoise(30, .2, seed+4);
+        SimplexNoise coalyThicknessNoise = new SimplexNoise(30, .2, seed+5);
+        SimplexNoise ironxzNoise = new SimplexNoise(30, .33, seed+6);
+        SimplexNoise ironyNoise = new SimplexNoise(30, .2, seed+7);
+        SimplexNoise ironyThicknessNoise = new SimplexNoise(25, .2, seed+8);
+        SimplexNoise goldxzNoise = new SimplexNoise(30, .37, seed+9);
+        SimplexNoise goldyNoise = new SimplexNoise(30, .2, seed+10);
+        SimplexNoise goldyThicknessNoise = new SimplexNoise(20, .2, seed+11);
+        SimplexNoise diamondxzNoise = new SimplexNoise(30, .40, seed+12);
+        SimplexNoise diamondyNoise = new SimplexNoise(30, .2, seed+13);
+        SimplexNoise diamondyThicknessNoise = new SimplexNoise(15, .2, seed+14);
         float height;
         for (float x = 0; x < CHUNK_SIZE; x += 1) {
             for (float z = 0; z < CHUNK_SIZE; z += 1) {
-                height = (float) (noise2.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)) + .9) * 15 + 5;
+                height = (float) (primaryNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)) + .9) * 15 + 5;
 
                 for (float y = 0; y < CHUNK_SIZE; y++) {
 
@@ -403,14 +556,31 @@ public class Chunk{
                             } else if (y <= WATER_LEVEL) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Water);
                             }
-                            
-                            Blocks[(int) (x)][(int) (y)][(int) (z)].SetChunkID(chunkID);
                         } else {
                             //generate normal land
                             if (y == 0) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Bedrock);
                             } else if (y <= height - 4) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Stone);
+                                //caves
+                                if(Math.abs(cavexzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>.05 &&
+                                        2>Math.abs(y-7-25*caveyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = null;
+                                }
+                                //ores
+                                else if(Math.abs(coalxzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))<.05 &&
+                                        Math.abs(10*coalyThicknessNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>Math.abs(y-12-15*coalyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Coal);
+                                } else if(Math.abs(ironxzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))<.015 &&
+                                        Math.abs(10*ironyThicknessNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>Math.abs(y-10-25*ironyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Iron);
+                                } else if(Math.abs(goldxzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))<.01 &&
+                                        Math.abs(10*goldyThicknessNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>Math.abs(y-7-15*goldyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Gold);
+                                } else if(Math.abs(diamondxzNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))<.005 &&
+                                        Math.abs(10*diamondyThicknessNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))>Math.abs(y-3-13*diamondyNoise.getNoise((int) (-x + StartX / 2), (int) (-z + StartZ / 2)))) {
+                                    Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Diamond);
+                                }
                             } else {
                                 if (y <= height - 1 || height <= WATER_LEVEL) {
                                     Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Dirt);
@@ -419,8 +589,6 @@ public class Chunk{
                                 }
 
                             }
-                            
-                            Blocks[(int) (x)][(int) (y)][(int) (z)].SetChunkID(chunkID);
                         }
                     }
                 }
@@ -514,7 +682,7 @@ public class Chunk{
         }
     }
     
-    public BlockType getBlock(float x, float y, float z, BlockType bt) {
+    public BlockType getBlock(float x, float y, float z) {
         try{
             return Blocks[(int)x][(int)y][(int)z].GetBlockType();
         } catch (Exception e) {
