@@ -54,7 +54,8 @@ public class FPCameraController {
     private int worldSize;
     private int currentChunkID;
     private MapBase coordinateRegistry;
-    Vector2f currentPosition;
+    private Vector2f currentPosition;
+    private int renderDistance;
     
     
     // method: FPCameraController
@@ -72,6 +73,7 @@ public class FPCameraController {
         velocity.z = 0f;
         
         worldSize = 10;
+        renderDistance = 1;
         chunks = new Chunk[worldSize][worldSize];
         
         coordinateRegistry = new MapBase();
@@ -211,8 +213,8 @@ public class FPCameraController {
     public void CalculateRenderDistance(){
         ResetRenderDistance();
         
-        for (int i = -1; i < 2; i++){
-            for (int j = -1; j < 2; j++){
+        for (int i = -renderDistance; i <= renderDistance; i++){
+            for (int j = -renderDistance; j <= renderDistance; j++){
                 try{
                     chunks[(int)(currentPosition.x) + i][(int)(currentPosition.y) + j].SetVisibility(true);
                 }
