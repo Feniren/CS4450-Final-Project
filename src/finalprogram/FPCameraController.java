@@ -16,6 +16,7 @@ package finalprogram;
 import java.nio.FloatBuffer;
 import java.util.Random;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -49,6 +50,12 @@ public class FPCameraController {
     private Chunk chunkTC;
     private Chunk chunkTR;
     
+    private Chunk[][] chunks;
+    private int worldSize;
+    private int currentChunkID;
+    private MapBase coordinateRegistry;
+    Vector2f currentPosition;
+    
     
     // method: FPCameraController
     // purpose: set up position locations
@@ -64,6 +71,32 @@ public class FPCameraController {
         velocity.y = 0f;
         velocity.z = 0f;
         
+        worldSize = 10;
+        chunks = new Chunk[worldSize][worldSize];
+        
+        coordinateRegistry = new MapBase();
+        Vector2f coordinates;
+        
+        int chunkListPosition = 0;
+        
+        for (int i = 0; i < worldSize; i++){
+            for (int j = 0; j < worldSize; j++){
+                chunks[i][j] = new Chunk(i * -60, 0, j * -60, seed);
+                chunks[i][j].SetChunkID(chunkListPosition);
+                
+                coordinates = new Vector2f(j, i);
+                
+                coordinateRegistry.Add(coordinates, chunkListPosition);
+                
+                //System.out.println(coordinates + " " + chunkListPosition + " ");
+                
+                chunkListPosition++;
+            }
+        }
+        
+        currentChunkID = 0;
+        
+        /*
         chunkBL = new Chunk(0, 0, 0, seed);
         chunkBC = new Chunk(-60, 0, 0, seed);
         chunkBR = new Chunk(-120, 0, 0, seed);
@@ -75,6 +108,7 @@ public class FPCameraController {
         chunkTL = new Chunk(0, 0, -120, seed);
         chunkTC = new Chunk(-60, 0, -120, seed);
         chunkTR = new Chunk(-120, 0, -120, seed);
+        */
     }
 
     // method: yaw
@@ -174,6 +208,33 @@ public class FPCameraController {
         glLight(GL_LIGHT0, GL_POSITION, lightPosition);
     }
     
+    public void CalculateRenderDistance(){
+        ResetRenderDistance();
+        
+        for (int i = -1; i < 2; i++){
+            for (int j = -1; j < 2; j++){
+                try{
+                    chunks[(int)(currentPosition.x) + i][(int)(currentPosition.y) + j].SetVisibility(true);
+                }
+                catch(Exception e){
+                    // 0  1  2  3  4
+                    // 5  6  7  8  9
+                    // 10 11 12 13 14
+                    // 15 16 17 18 19
+                    // 20 21 22 23 24
+                }
+            }
+        }
+    }
+    
+    public void ResetRenderDistance(){
+        for (int i = 0; i < worldSize; i++){
+            for (int j = 0; j < worldSize; j++){
+                chunks[i][j].SetVisibility(false);
+            }
+        }
+    }
+    
     // method: gameLoop
     // purpose: process player inputs, then display updated view
     public void gameLoop() {
@@ -250,7 +311,21 @@ public class FPCameraController {
             
             //chunkMC.Blocks[]
             
+            currentPosition = new Vector2f((int)(-camera.position.x / 60), (int)(-camera.position.z / 60));
             
+            currentChunkID = coordinateRegistry.Find(currentPosition);
+            
+            System.out.println(currentPosition + " " + currentChunkID + " ");
+            
+            CalculateRenderDistance();
+            
+            for (int i = 0; i < worldSize; i++){
+                for (int j = 0; j < worldSize; j++){
+                    chunks[i][j].render();
+                }
+            }
+            
+            /*
             chunkBL.render();
             chunkBC.render();
             chunkBR.render();
@@ -260,6 +335,7 @@ public class FPCameraController {
             chunkTL.render();
             chunkTC.render();
             chunkTR.render();
+            */
             
             glBegin(GL_QUADS);
                 glColor4f(1.0f, 1.0f, 1.0f, 1f);

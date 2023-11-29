@@ -39,6 +39,8 @@ public class Chunk{
     private Random r;
     private int VBOTextureHandle;
     private Texture texture;
+    private boolean isVisible;
+    private int chunkID;
     
     //constructor
     public Chunk(int startX, int startY, int startZ, int seed){
@@ -60,6 +62,8 @@ public class Chunk{
                 }
             }
         }*/
+        
+        isVisible = true;
         
         VBOColorHandle = glGenBuffers();
         VBOVertexHandle = glGenBuffers();
@@ -399,6 +403,8 @@ public class Chunk{
                             } else if (y <= WATER_LEVEL) {
                                 Blocks[(int) (x)][(int) (y)][(int) (z)] = new Block(BlockType.Water);
                             }
+                            
+                            Blocks[(int) (x)][(int) (y)][(int) (z)].SetChunkID(chunkID);
                         } else {
                             //generate normal land
                             if (y == 0) {
@@ -413,6 +419,8 @@ public class Chunk{
                                 }
 
                             }
+                            
+                            Blocks[(int) (x)][(int) (y)][(int) (z)].SetChunkID(chunkID);
                         }
                     }
                 }
@@ -459,18 +467,19 @@ public class Chunk{
     
     //renders chunk
     public void render(){
-        
-        glPushMatrix();
-        glTranslatef(1 - StartX, -23 - StartY, 2 - StartZ);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOVertexHandle);
-        glVertexPointer(3, GL_FLOAT, 0, 0L);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOColorHandle);
-        glColorPointer(3,GL_FLOAT, 0, 0L);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOTextureHandle);
-        glBindTexture(GL_TEXTURE_2D, 1);
-        glTexCoordPointer(2,GL_FLOAT,0,0L);
-        glDrawArrays(GL_QUADS, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 24);
-        glPopMatrix();
+        if (isVisible){
+            glPushMatrix();
+            glTranslatef(1 - StartX, -23 - StartY, 2 - StartZ);
+            glBindBuffer(GL_ARRAY_BUFFER, VBOVertexHandle);
+            glVertexPointer(3, GL_FLOAT, 0, 0L);
+            glBindBuffer(GL_ARRAY_BUFFER, VBOColorHandle);
+            glColorPointer(3,GL_FLOAT, 0, 0L);
+            glBindBuffer(GL_ARRAY_BUFFER, VBOTextureHandle);
+            glBindTexture(GL_TEXTURE_2D, 1);
+            glTexCoordPointer(2,GL_FLOAT,0,0L);
+            glDrawArrays(GL_QUADS, 0, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 24);
+            glPopMatrix();
+        }
     }
     
     public void setBlock(float x, float y, float z, BlockType bt) {
@@ -479,6 +488,22 @@ public class Chunk{
         } catch (Exception e) {
             System.out.println(e);
         }
+    }
+    
+    public void SetVisibility(boolean visibility){
+        isVisible = visibility;
+    }
+    
+    public boolean GetVisibility(){
+        return isVisible;
+    }
+    
+    public void SetChunkID(int ID){
+        chunkID = ID;
+    }
+    
+    public int GetChunkID(){
+        return chunkID;
     }
     
     public void destroyBlock(float x, float y, float z) {
