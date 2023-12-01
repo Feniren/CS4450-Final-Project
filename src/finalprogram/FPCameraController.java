@@ -40,16 +40,6 @@ public class FPCameraController {
     private Random r = new Random();
     private int seed =r.nextInt();
     
-    private Chunk chunkBL;
-    private Chunk chunkBC;
-    private Chunk chunkBR;
-    private Chunk chunkML;
-    private Chunk chunkMC;
-    private Chunk chunkMR;
-    private Chunk chunkTL;
-    private Chunk chunkTC;
-    private Chunk chunkTR;
-    
     private Chunk[][] chunks;
     private int worldSize;
     private int currentChunkID;
@@ -105,20 +95,6 @@ public class FPCameraController {
         }
         
         currentChunkID = 0;
-        
-        /*
-        chunkBL = new Chunk(0, 0, 0, seed);
-        chunkBC = new Chunk(-60, 0, 0, seed);
-        chunkBR = new Chunk(-120, 0, 0, seed);
-        
-        chunkML = new Chunk(0, 0, -60, seed);
-        chunkMC = new Chunk(-60, 0, -60, seed);
-        chunkMR = new Chunk(-120, 0, -60, seed);
-        
-        chunkTL = new Chunk(0, 0, -120, seed);
-        chunkTC = new Chunk(-60, 0, -120, seed);
-        chunkTR = new Chunk(-120, 0, -120, seed);
-        */
     }
 
     // method: yaw
@@ -214,7 +190,7 @@ public class FPCameraController {
         glTranslatef(position.x, position.y, position.z);
         
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        lightPosition.put(60.0f).put(60.0f).put(100.0f).put(1.0f).flip();
+        lightPosition.put(worldSize/2*-60).put(60.0f).put(worldSize/2*-60).put(1.0f).flip();
         glLight(GL_LIGHT0, GL_POSITION, lightPosition);
     }
     
@@ -325,14 +301,9 @@ public class FPCameraController {
                 }
             }
             
-            
-            //chunkMC.Blocks[]
-            
             currentPosition = new Vector2f((int)(-camera.position.x / 60), (int)(-camera.position.z / 60));
             
             currentChunkID = coordinateRegistry.Find(currentPosition);
-            
-            //System.out.println(currentPosition + " " + currentChunkID + " ");
             
             CalculateRenderDistance();
             
@@ -341,18 +312,6 @@ public class FPCameraController {
                     chunks[i][j].render();
                 }
             }
-            
-            /*
-            chunkBL.render();
-            chunkBC.render();
-            chunkBR.render();
-            chunkML.render();
-            chunkMC.render();
-            chunkMR.render();
-            chunkTL.render();
-            chunkTC.render();
-            chunkTR.render();
-            */
             
             /*glBegin(GL_QUADS);
                 glColor4f(1.0f, 1.0f, 1.0f, 1f);
