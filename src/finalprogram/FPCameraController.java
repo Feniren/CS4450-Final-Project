@@ -190,7 +190,7 @@ public class FPCameraController {
         glTranslatef(position.x, position.y, position.z);
         
         FloatBuffer lightPosition = BufferUtils.createFloatBuffer(4);
-        lightPosition.put(worldSize/2*-60).put(60.0f).put(worldSize/2*-60).put(1.0f).flip();
+        lightPosition.put(worldSize/2*60).put(60.0f).put(worldSize/2*60).put(1.0f).flip();
         glLight(GL_LIGHT0, GL_POSITION, lightPosition);
     }
     
