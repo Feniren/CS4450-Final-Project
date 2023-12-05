@@ -129,7 +129,7 @@ public class Chunk{
     //creates a float array to hold texture data based on the type of block
     public static float[] createTexCube(float x, float y, Block block){
         float offset = (96f/16)/96f;
-        /*
+        
         return new float[]{
             //Top
             x + offset, y,
@@ -161,9 +161,9 @@ public class Chunk{
             x + (offset * 5), y,
             x + (offset * 5), y + offset,
             x + (offset * 6), y + offset,
-        };*/
+        };
         
-                
+          /*      
         switch (block.GetBlockType()) {
             case Grass:
                 
@@ -552,7 +552,7 @@ public class Chunk{
                 
             default:
                 return new float[]{0.0f};
-        }
+        }*/
 
     }
     
@@ -646,7 +646,6 @@ public class Chunk{
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
         //textures.getTexture(BlockType.Grass).bind();
-        texture.bind();
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){
