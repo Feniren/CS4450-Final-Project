@@ -41,6 +41,7 @@ public class Chunk{
     private Texture texture;
     private boolean isVisible;
     private int chunkID;
+    private static BlockTexture textures = new BlockTexture();
     
     //constructor
     public Chunk(int startX, int startY, int startZ, int seed){
@@ -128,6 +129,41 @@ public class Chunk{
     //creates a float array to hold texture data based on the type of block
     public static float[] createTexCube(float x, float y, Block block){
         float offset = (96f/16)/96f;
+        /*
+        return new float[]{
+            //Top
+            x + offset, y,
+            x, y,
+            x, y + offset,
+            x + offset, y + offset,
+            //Front
+            x + (offset * 2), y,
+            x + offset, y,
+            x + offset, y + offset,
+            x + (offset * 2), y + offset,
+            //Left
+            x + (offset * 3), y,
+            x + (offset * 2), y,
+            x + (offset * 2), y + offset,
+            x + (offset * 3), y + offset,
+            //Back
+            x + (offset * 4), y,
+            x + (offset * 3), y,
+            x + (offset * 3), y + offset,
+            x + (offset * 4), y + offset,
+            //Right
+            x + (offset * 5), y,
+            x + (offset * 4), y,
+            x + (offset * 4), y + offset,
+            x + (offset * 5), y + offset,
+            //Bottom
+            x + (offset * 6), y,
+            x + (offset * 5), y,
+            x + (offset * 5), y + offset,
+            x + (offset * 6), y + offset,
+        };*/
+        
+                
         switch (block.GetBlockType()) {
             case Grass:
                 
@@ -517,6 +553,7 @@ public class Chunk{
             default:
                 return new float[]{0.0f};
         }
+
     }
     
     //gets the brightness for the block (white)
@@ -608,6 +645,8 @@ public class Chunk{
         FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
+        //textures.getTexture(BlockType.Grass).bind();
+        texture.bind();
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){

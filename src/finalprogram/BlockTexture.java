@@ -27,10 +27,10 @@ import org.newdawn.slick.util.ResourceLoader;
 public class BlockTexture{
     //private Pair<BlockType, Texture> textures = new Pair<>();
     
-    private static Map<BlockType, Texture> textures = new HashMap<BlockType, Texture>();
+    private Map<BlockType, Texture> textures = new HashMap<BlockType, Texture>();
     
     //constructor
-    private BlockTexture(){
+    BlockTexture(){
         try{
             textures.put(BlockType.Bedrock, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
             textures.put(BlockType.Dirt, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png")));
@@ -45,7 +45,7 @@ public class BlockTexture{
     }
     
     //returns texture based on block type
-    public static Texture getTexture(BlockType blockType){
+    public Texture getTexture(BlockType blockType){
         return textures.get(blockType);
     }
 }
