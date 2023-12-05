@@ -132,6 +132,15 @@ public class Chunk{
         Random random = new Random();
         int randomNumber = random.nextInt(2) - 1;
         
+        switch(block.GetBlockType()){
+            case Grass:
+                textures.getTexture(BlockType.Grass).bind();
+            case Stone:
+                textures.getTexture(BlockType.Stone).bind();
+            default:
+                textures.getTexture(BlockType.Grass).bind();
+        }
+        
         if (randomNumber == 0){
             return new float[]{
             //Top
@@ -291,7 +300,6 @@ public class Chunk{
         FloatBuffer VertexPositionData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexColorData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE) * 6 * 12);
         FloatBuffer VertexTextureData = BufferUtils.createFloatBuffer((CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE)* 6 * 12);
-        textures.getTexture(BlockType.Grass).bind();
         
         for (float x = 0; x < CHUNK_SIZE; x += 1){
             for (float z = 0; z < CHUNK_SIZE; z += 1){

@@ -28,16 +28,24 @@ public class BlockTexture{
     //private Pair<BlockType, Texture> textures = new Pair<>();
     
     private Map<BlockType, Texture> textures = new HashMap<BlockType, Texture>();
+    private Map<BlockType, String> textureString = new HashMap<BlockType, String>();
     
     //constructor
     BlockTexture(){
         try{
             textures.put(BlockType.Bedrock, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
-            textures.put(BlockType.Dirt, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
-            textures.put(BlockType.Grass, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
+            textures.put(BlockType.Dirt, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockDirt.png")));
+            textures.put(BlockType.Grass, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockSand.png")));
             textures.put(BlockType.Sand, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
-            textures.put(BlockType.Stone, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
-            textures.put(BlockType.Water, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockGrass.png")));
+            textures.put(BlockType.Stone, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockStone.png")));
+            textures.put(BlockType.Water, TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("BlockWater.png")));
+            
+            textureString.put(BlockType.Bedrock, "BlockWater.png");
+            textureString.put(BlockType.Dirt, "BlockDirt.png");
+            textureString.put(BlockType.Grass, "BlockSand.png");
+            textureString.put(BlockType.Sand, "BlockGrass.png");
+            textureString.put(BlockType.Stone, "BlockStone.png");
+            textureString.put(BlockType.Water, "BlockWater.png");
         }
         catch(Exception e){
             System.out.print("Texture Load Failed");
@@ -47,5 +55,9 @@ public class BlockTexture{
     //returns texture based on block type
     public Texture getTexture(BlockType blockType){
         return textures.get(blockType);
+    }
+    
+    public String getTextureString(BlockType blockType){
+        return textureString.get(blockType);
     }
 }
