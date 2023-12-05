@@ -41,12 +41,12 @@ public class Chunk{
     private Texture texture;
     private boolean isVisible;
     private int chunkID;
-    private static BlockTexture textures = new BlockTexture();
+    //private static BlockTexture textures = new BlockTexture();
     
     //constructor
     public Chunk(int startX, int startY, int startZ, int seed){
         try{
-            //texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("GrassBlock.png"));
+            texture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("AllBlocks.png"));
         }
         catch(Exception e){
             System.out.print("ER-ROAR!");
@@ -129,84 +129,98 @@ public class Chunk{
     //creates a float array to hold texture data based on the type of block
     public static float[] createTexCube(float x, float y, Block block){
         float offset = (96f/16)/96f;
+        float yOffset = (96f/16)/96f;
         Random random = new Random();
         int randomNumber = random.nextInt(2) - 1;
         
         switch(block.GetBlockType()){
             case Grass:
-                textures.getTexture(BlockType.Grass).bind();
+                yOffset *= 0;
+                break;
+            case Dirt:
+                yOffset *= 1;
+                break;
+            case Sand:
+                yOffset *= 2;
+                break;
             case Stone:
-                textures.getTexture(BlockType.Stone).bind();
+                yOffset *= 3;
+                break;
+            case Water:
+                yOffset *= 4;
+                break;
+                
             default:
-                textures.getTexture(BlockType.Grass).bind();
+                yOffset *= 3;
+                break;
         }
         
         if (randomNumber == 0){
             return new float[]{
             //Top
-            x + offset, y,
-            x, y,
-            x, y + offset,
-            x + offset, y + offset,
+            x + offset, (y + yOffset),
+            x, (y + yOffset),
+            x, y + (offset + yOffset),
+            x + offset, y + (offset + yOffset),
             //Bottom
-            x + (offset * 6), y,
-            x + (offset * 5), y,
-            x + (offset * 5), y + offset,
-            x + (offset * 6), y + offset,
+            x + (offset * 6), (y + yOffset),
+            x + (offset * 5), (y + yOffset),
+            x + (offset * 5), y + (offset + yOffset),
+            x + (offset * 6), y + (offset + yOffset),
             //Front
-            x + (offset * 2), y,
-            x + offset, y,
-            x + offset, y + offset,
-            x + (offset * 2), y + offset,
+            x + (offset * 2), (y + yOffset),
+            x + offset, (y + yOffset),
+            x + offset, y + (offset + yOffset),
+            x + (offset * 2), y + (offset + yOffset),
             //Left
-            x + (offset * 3), y + offset,
-            x + (offset * 2), y + offset,
-            x + (offset * 2), y,
-            x + (offset * 3), y,
+            x + (offset * 3), y + (offset + yOffset),
+            x + (offset * 2), y + (offset + yOffset),
+            x + (offset * 2), (y + yOffset),
+            x + (offset * 3), (y + yOffset),
             //Back
-            x + (offset * 4), y,
-            x + (offset * 3), y,
-            x + (offset * 3), y + offset,
-            x + (offset * 4), y + offset,
+            x + (offset * 4), (y + yOffset),
+            x + (offset * 3), (y + yOffset),
+            x + (offset * 3), y + (offset + yOffset),
+            x + (offset * 4), y + (offset + yOffset),
             //Right
-            x + (offset * 5), y,
-            x + (offset * 4), y,
-            x + (offset * 4), y + offset,
-            x + (offset * 5), y + offset,
+            x + (offset * 5), (y + yOffset),
+            x + (offset * 4), (y + yOffset),
+            x + (offset * 4), y + (offset + yOffset),
+            x + (offset * 5), y + (offset + yOffset),
             };
         }
         else{
             return new float[]{
             //Top
-            x + offset, y + offset,
-            x, y + offset,
-            x, y,
-            x + offset, y,
+            x + offset, y + (offset + yOffset),
+            x, y + (offset + yOffset),
+            x, (y + yOffset),
+            x + offset, (y + yOffset),
             //Bottom
-            x + (offset * 6), y,
-            x + (offset * 5), y,
-            x + (offset * 5), y + offset,
-            x + (offset * 6), y + offset,
+            x + (offset * 6), (y + yOffset),
+            x + (offset * 5), (y + yOffset),
+            x + (offset * 5), y + (offset + yOffset),
+            x + (offset * 6), y + (offset + yOffset),
             //Front
-            x + (offset * 2), y,
-            x + offset, y,
-            x + offset, y + offset,
-            x + (offset * 2), y + offset,
+            x + (offset * 2), (y + yOffset),
+            x + offset, (y + yOffset),
+            x + offset, y + (offset + yOffset),
+            x + (offset * 2), y + (offset + yOffset),
             //Left
-            x + (offset * 3), y + offset,
-            x + (offset * 2), y + offset,
-            x + (offset * 2), y,
-            x + (offset * 3), y,
+            x + (offset * 3), y + (offset + yOffset),
+            x + (offset * 2), y + (offset + yOffset),
+            x + (offset * 2), (y + yOffset),
+            x + (offset * 3), (y + yOffset),
             //Back
-            x + (offset * 4), y,
-            x + (offset * 3), y,
-            x + (offset * 3), y + offset,
-            x + (offset * 4), y + offset,
+            x + (offset * 4), (y + yOffset),
+            x + (offset * 3), (y + yOffset),
+            x + (offset * 3), y + (offset + yOffset),
+            x + (offset * 4), y + (offset + yOffset),
             //Right
-            x + (offset * 5), y,
-            x + (offset * 4), y,
-            x + (offset * 4), y + offset,
-            x + (offset * 5), y + offset,
+            x + (offset * 5), (y + yOffset),
+            x + (offset * 4), (y + yOffset),
+            x + (offset * 4), y + (offset + yOffset),
+            x + (offset * 5), y + (offset + yOffset),
             };
         }
     }
