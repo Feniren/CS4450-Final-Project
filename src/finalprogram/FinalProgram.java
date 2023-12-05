@@ -4,17 +4,18 @@
  * class: CS 4450-01 – Computer Graphics
  *
  * assignment: FinalProgram
- * date last modified: 10/19/2023
+ * date last modified: 12/5/2023
  *
  * purpose:
- *   This program draws a 640x480 window, displays a cube
- *   with first person controls
+ *   This starts a 640x480 window, then starts the game
  *
  * controls:
  *   WASD or arrow keys for movement
  *   mouse for camera manipulation
  *   space bar for up movement
  *   left shift for down movement
+ *   Q for build
+ *   E for break
  *************************************************************** */
 
 // package
